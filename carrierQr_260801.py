@@ -165,7 +165,7 @@ def create_datamatrix_block(doc, data, code_size=12.0, add_outline=True):
 
 def add_comment_text(msp, data, x, y):
     """
-    텍스트를 DataMatrix 블록과 분리해서 일반 TEXT로 추가
+    ESDC, JSDC 텍스트를 DataMatrix 블록과 분리해서 일반 TEXT로 추가
     """
 
     text = msp.add_text(
@@ -178,6 +178,38 @@ def add_comment_text(msp, data, x, y):
 
     # 코드 아래쪽에 문자 배치
     text.set_placement((x, y - 3.0))
+
+
+def add_set_bottom_text(
+    msp,
+    text_value,
+    frame_x,
+    frame_y,
+    frame_width,
+    frame_height,
+    text_height=4.0
+):
+    """
+    각 128x180 세트 하부에 텍스트 추가
+
+    frame_x, frame_y는 프레임 좌측 상단
+    텍스트 위치는 프레임 내부 하단 중앙 부근
+    """
+
+    text = msp.add_text(
+        text_value,
+        dxfattribs={
+            "height": text_height,
+            "true_color": rgb2int((0, 0, 0))
+        }
+    )
+
+    # 프레임 하부 중앙 근처
+    # 글자 길이에 따라 완전 중앙은 CAD에서 수동 조정 가능
+    text_x = frame_x + frame_width / 2 - 20.0
+    text_y = frame_y - frame_height + 10.0
+
+    text.set_placement((text_x, text_y))
 
 
 def add_frame(msp, x, y, frame_width=128.0, frame_height=180.0, fill_white=True):
@@ -214,7 +246,9 @@ def add_frame(msp, x, y, frame_width=128.0, frame_height=180.0, fill_white=True)
 
 
 def make_datamatrix_dxf(
-    output_file="datamatrix_28sets_12mm_down.dxf",
+    output_file="datamatrix_50sets_with_bottom_text.dxf",
+    total_sets=50,
+
     code_size=12.0,
 
     frame_width=128.0,
@@ -224,7 +258,7 @@ def make_datamatrix_dxf(
     frame_gap_x=15.0,
     frame_gap_y=15.0,
 
-    code_down_offset=12.0,   # 전체 코드 12mm 아래 이동
+    code_down_offset=12.0,
 
     add_label=True,
     add_outline=True,
@@ -232,12 +266,17 @@ def make_datamatrix_dxf(
     fill_frame_white=True
 ):
     """
-    0001 ~ 0028까지 총 28세트 생성
+    0001 ~ total_sets까지 생성
 
     프레임:
     - 크기: 128 x 180mm
     - 내부: 흰색 배경
     - 외곽: 검정선
+
+    DataMatrix:
+    - 크기: 12 x 12mm
+    - 배경: 흰색
+    - 코드: 검정색
 
     한 세트 배치:
 
@@ -252,8 +291,7 @@ def make_datamatrix_dxf(
 
     텍스트 표시는 ESDC, JSDC만 표시
 
-    code_down_offset=12.0 으로 전체 DataMatrix 코드와 텍스트를
-    기존 위치보다 12mm 아래로 이동
+    각 세트 하부 텍스트는 set_bottom_texts 리스트에서 가져옴
     """
 
     doc = ezdxf.new("R2010")
@@ -261,12 +299,75 @@ def make_datamatrix_dxf(
 
     msp = doc.modelspace()
 
-    total_sets = 28
+    # ---------------------------------------------------
+    # 각 세트 하부에 들어갈 텍스트 리스트
+    # total_sets=50이면 50개 작성
+    # 필요 없는 세트는 "" 빈 문자열로 두면 표시 안 됨
+    # ---------------------------------------------------
+    set_bottom_texts = [
+        "SET-0001",
+        "SET-0002",
+        "SET-0003",
+        "SET-0004",
+        "SET-0005",
+        "SET-0006",
+        "SET-0007",
+        "SET-0008",
+        "SET-0009",
+        "SET-0010",
 
+        "SET-0011",
+        "SET-0012",
+        "SET-0013",
+        "SET-0014",
+        "SET-0015",
+        "SET-0016",
+        "SET-0017",
+        "SET-0018",
+        "SET-0019",
+        "SET-0020",
+
+        "SET-0021",
+        "SET-0022",
+        "SET-0023",
+        "SET-0024",
+        "SET-0025",
+        "SET-0026",
+        "SET-0027",
+        "SET-0028",
+        "SET-0029",
+        "SET-0030",
+
+        "SET-0031",
+        "SET-0032",
+        "SET-0033",
+        "SET-0034",
+        "SET-0035",
+        "SET-0036",
+        "SET-0037",
+        "SET-0038",
+        "SET-0039",
+        "SET-0040",
+
+        "SET-0041",
+        "SET-0042",
+        "SET-0043",
+        "SET-0044",
+        "SET-0045",
+        "SET-0046",
+        "SET-0047",
+        "SET-0048",
+        "SET-0049",
+        "SET-0050",
+    ]
+
+    # ---------------------------------------------------
     # QR.dxf 기준 코드 위치
     # 기준: 프레임 좌측 상단에서 떨어진 거리
+    #
     # x_offset: 왼쪽에서 오른쪽 거리
     # y_offset: 위에서 아래로 내려가는 거리
+    # ---------------------------------------------------
     code_positions = {
         "A": (40.0, 36.0),
         "B": (58.0, 36.0),
@@ -284,7 +385,8 @@ def make_datamatrix_dxf(
         "J": (58.0, 114.0),
     }
 
-    # 텍스트를 표시할 코드만 지정
+    # DataMatrix 아래 텍스트를 표시할 코드만 지정
+    # 현재는 ESDC, JSDC만 표시
     label_prefixes = ["E", "J"]
 
     for set_num in range(1, total_sets + 1):
@@ -292,7 +394,7 @@ def make_datamatrix_dxf(
 
         set_index = set_num - 1
 
-        # 28세트를 여러 프레임으로 배치
+        # 여러 프레임으로 배치
         set_col = set_index % sets_per_row
         set_row = set_index // sets_per_row
 
@@ -311,14 +413,33 @@ def make_datamatrix_dxf(
                 fill_white=fill_frame_white
             )
 
-        # 프레임 안에 A~J 배치
+        # ---------------------------------------------------
+        # 각 세트 하부 텍스트 추가
+        # ---------------------------------------------------
+        if set_index < len(set_bottom_texts):
+            bottom_text = set_bottom_texts[set_index]
+        else:
+            bottom_text = ""
+
+        if bottom_text != "":
+            add_set_bottom_text(
+                msp=msp,
+                text_value=bottom_text,
+                frame_x=frame_x,
+                frame_y=frame_y,
+                frame_width=frame_width,
+                frame_height=frame_height,
+                text_height=4.0
+            )
+
+        # 프레임 안에 A~J DataMatrix 배치
         for prefix, offset in code_positions.items():
             offset_x, offset_y = offset
 
             data = prefix + "SDC" + number
 
             # DataMatrix 좌측 하단 위치
-            # 기존 위치보다 전체적으로 12mm 아래로 이동
+            # 기존 위치보다 전체적으로 code_down_offset 만큼 아래로 이동
             x = frame_x + offset_x
             y = frame_y - offset_y - code_down_offset
 
@@ -336,7 +457,7 @@ def make_datamatrix_dxf(
                 insert=(x, y)
             )
 
-            # 텍스트는 ESDC, JSDC만 표시
+            # ESDC, JSDC 텍스트만 표시
             if add_label and prefix in label_prefixes:
                 add_comment_text(
                     msp=msp,
@@ -358,12 +479,15 @@ def make_datamatrix_dxf(
     print("총 세트:", total_sets, "세트")
     print("총 코드 개수:", total_sets * 10, "개")
     print("텍스트 표시:", "ESDC, JSDC만")
+    print("세트 하부 텍스트:", "리스트 사용")
     print("한 줄 세트 개수:", sets_per_row)
 
 
 # 실행
 make_datamatrix_dxf(
-    output_file="datamatrix_28sets_12mm_down.dxf",
+    output_file="datamatrix_50sets_with_bottom_text.dxf",
+
+    total_sets=50,        # 0001 ~ 0050
 
     code_size=12.0,
 
@@ -371,12 +495,12 @@ make_datamatrix_dxf(
     frame_height=180.0,
 
     sets_per_row=4,       # 한 줄에 4세트 배치
-    frame_gap_x=15.0,     # 프레임끼리 가로 간격
-    frame_gap_y=15.0,     # 프레임끼리 세로 간격
+    frame_gap_x=15.0,
+    frame_gap_y=15.0,
 
     code_down_offset=12.0, # 전체 코드 12mm 아래 이동
 
-    add_label=True,        # 텍스트 표시 기능 사용
+    add_label=True,        # ESDC, JSDC 텍스트 표시
     add_outline=True,      # 흰색 외곽선, 꼭짓점 스냅용
     add_frame_line=True,   # 128x180 외곽선 표시
     fill_frame_white=True  # 128x180 내부 흰색 배경
