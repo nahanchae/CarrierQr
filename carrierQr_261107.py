@@ -206,7 +206,7 @@ def add_set_bottom_text(
 
     # 프레임 하부 중앙 근처
     # 글자 길이에 따라 완전 중앙은 CAD에서 수동 조정 가능
-    text_x = frame_x + frame_width / 2 - 20.0
+    text_x = frame_x + frame_width / 2 - 15.0
     text_y = frame_y - frame_height + 10.0
 
     text.set_placement((text_x, text_y))
@@ -247,7 +247,7 @@ def add_frame(msp, x, y, frame_width=128.0, frame_height=180.0, fill_white=True)
 
 def make_datamatrix_dxf(
     output_file="datamatrix_50sets_with_bottom_text.dxf",
-    total_sets=50,
+    total_sets=24,
 
     code_size=12.0,
 
@@ -305,60 +305,39 @@ def make_datamatrix_dxf(
     # 필요 없는 세트는 "" 빈 문자열로 두면 표시 안 됨
     # ---------------------------------------------------
     set_bottom_texts = [
-        "SET-0001",
-        "SET-0002",
-        "SET-0003",
-        "SET-0004",
-        "SET-0005",
-        "SET-0006",
-        "SET-0007",
-        "SET-0008",
-        "SET-0009",
-        "SET-0010",
+        "4FC0006G",
+        "4FC0017I",
+        "4FC0002C",
+        "4FC0009J",
+        "4FC0018J",
+        "4FC0007H",
+        "4FC0011C",
+        "4FC0014F",
+        "4FC0016H",
+        "4FC0021D",
 
-        "SET-0011",
-        "SET-0012",
-        "SET-0013",
-        "SET-0014",
-        "SET-0015",
-        "SET-0016",
-        "SET-0017",
-        "SET-0018",
-        "SET-0019",
-        "SET-0020",
+        "4FC0022E",
+        "4FC0013E",
+        "4FC0015G",
+        "4FC0020C",
+        "4FC0003D",
+        "4FC0023F",
+        "4FC0024G",
+        "4FC0019A",
+        "4FC0001B",
+        "4FC0004E",
 
-        "SET-0021",
-        "SET-0022",
-        "SET-0023",
-        "SET-0024",
-        "SET-0025",
-        "SET-0026",
-        "SET-0027",
-        "SET-0028",
-        "SET-0029",
-        "SET-0030",
-
-        "SET-0031",
-        "SET-0032",
-        "SET-0033",
-        "SET-0034",
-        "SET-0035",
-        "SET-0036",
-        "SET-0037",
-        "SET-0038",
-        "SET-0039",
-        "SET-0040",
-
-        "SET-0041",
-        "SET-0042",
-        "SET-0043",
-        "SET-0044",
-        "SET-0045",
-        "SET-0046",
-        "SET-0047",
-        "SET-0048",
-        "SET-0049",
-        "SET-0050",
+        "4FC0010B",
+        "4FC0012D",
+        "4FC0005F",
+        "4FC0008I",
+        "4FC0025H",
+        "4FC0026I",
+        "4FC0027J",
+        "4FC0028A",
+        "4FC0029B",
+        "4FC0030D",
+        "4FC0031E",
     ]
 
     # ---------------------------------------------------
@@ -485,9 +464,9 @@ def make_datamatrix_dxf(
 
 # 실행
 make_datamatrix_dxf(
-    output_file="datamatrix_50sets_with_bottom_text.dxf",
+    output_file="datamatrix_31sets_260911.dxf",
 
-    total_sets=50,        # 0001 ~ 0050
+    total_sets=31,        # 0001 ~ 
 
     code_size=12.0,
 
